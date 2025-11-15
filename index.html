@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OMAR CHAOUKAT - AI Assistant</title>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -968,7 +969,46 @@
 
 
 
-   
+   const chars = [
+  // Alphabet minuscule
+  ..."abcdefghijklmnopqrstuvwxyz",
+
+  // Alphabet majuscule
+  ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+
+  // Chiffres
+  ..."0123456789",
+
+  // Caractères spéciaux
+  ..."!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~"
+];
+
+
+
+
+function AddSession(){
+   let sessionId="";
+   let random;
+   let finalSession;
+
+   /**/
+    if(localStorage.getItem("sessionChAgent")==null){
+          
+          for(let i=0;i<20;i++){
+
+            random=_.random(0,chars.length-1);
+            sessionId=sessionId+chars[random];
+        
+        }
+             localStorage.setItem("sessionChAgent",sessionId)  ;  
+             finalSession=sessionId
+    }else{
+          finalSession=localStorage.getItem("sessionChAgent") ;        
+    }
+
+
+    return finalSession;
+}
 
 
 
@@ -983,9 +1023,12 @@
             
  addMessage(message, 'user');
   chatInput.value = '';
+
+
+
   showTypingIndicator();
 
-            fetch(`https://omarinho.app.n8n.cloud/webhook/user?response=${message}&sessionkey=omarSession`)
+            fetch(`https://omarinho.app.n8n.cloud/webhook/user?response=${message}&sessionkey=${AddSession()}`)
             .then(res=>res.json())
             .then(data=>{
             
