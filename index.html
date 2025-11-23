@@ -1074,7 +1074,7 @@ function AddSession(){
 
   showTypingIndicator();
 
-            fetch(`https://agencyv.app.n8n.cloud/webhook-test/user?response=${message}&sessionkey=${AddSession()}`)
+            fetch(`https://agencyv.app.n8n.cloud/webhook/user?response=${message}&sessionkey=${AddSession()}`)
             .then(res=>res.json())
             .then(data=>{
             
