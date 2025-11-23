@@ -19,6 +19,52 @@
             overflow: hidden;
             position: relative;
         }
+        ul.awesome-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 600px;
+  margin: auto;
+}
+
+ul.awesome-list li {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-left: 6px solid transparent;
+  transition: 0.25s ease;
+}
+
+ul.awesome-list li:hover {
+  transform: translateY(-3px);
+  border-left: 6px solid #6366f1;
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.12);
+}
+
+ul.awesome-list li .icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+ul.awesome-list li .text {
+  font-size: 17px;
+  font-weight: 500;
+  color: #333;
+}
 
         /* Avatar Container */
         .avatar-container {
@@ -884,7 +930,7 @@
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            contentDiv.textContent = text;
+            contentDiv.innerHTML = text;
             
             messageDiv.appendChild(avatarDiv);
             messageDiv.appendChild(contentDiv);
@@ -1028,7 +1074,7 @@ function AddSession(){
 
   showTypingIndicator();
 
-            fetch(`https://omarinho.app.n8n.cloud/webhook/user?response=${message}&sessionkey=${AddSession()}`)
+            fetch(`https://agencyv.app.n8n.cloud/webhook-test/user?response=${message}&sessionkey=${AddSession()}`)
             .then(res=>res.json())
             .then(data=>{
             
@@ -1036,18 +1082,24 @@ function AddSession(){
             
             // Show typing indicator
            
-            
+            let response;
             // Simulate response delay
             setTimeout(() => {
                 removeTypingIndicator();
-                const response = data.output?data.output:"Sorry something went Wrong"
+                console.log(data)
+                 response= data.nodeOutput?data.nodeOutput:"Sorry something went Wrong";
+                 
                 addMessage(response, 'assistant');
+           
+              
+             
                 
                 // Show and animate avatar during response
                 animateAvatar(response.length * 50);
                 speak(response);
+                  
             }, 1000 + Math.random() * 2000);
-            
+              
             })
             // Add user message
            
