@@ -428,29 +428,27 @@ ul.awesome-list li .text {
             box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
         }
 
-        .chat-input {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 30px;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.3s ease;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* File upload button (next to send/audio) */
+        .file-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
         }
 
-        .chat-input:hover {
-            border-color: #c0c0c0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .chat-input:focus {
-            border-color: #4A90E2;
-            box-shadow: 0 4px 16px rgba(74, 144, 226, 0.25);
-            transform: translateY(-1px);
-        }
+        .file-btn:hover { transform: translateY(-2px) scale(1.05); }
+        .file-input-hidden { display: none; }
 
         .send-btn, .audio-btn {
             width: 50px;
@@ -793,6 +791,13 @@ ul.awesome-list li .text {
                 display: none;
             }
         }
+
+        #chatInput{
+        padding: 20px;
+        width: 80%;
+        border-radius: 20px;
+        border: 0.8px solid ;
+        }
     </style>
 </head>
 <body>
@@ -849,7 +854,9 @@ ul.awesome-list li .text {
 
         <div class="chat-input-container">
             <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
-            <button class="audio-btn" id="audioBtn" title="Voice Input">🎤</button>
+            <!-- file button + hidden input -->
+            <input type="file" id="fileInput" class="file-input-hidden" />
+            <button class="file-btn" id="fileBtn" title="Upload File">📎</button>
             <button class="send-btn" id="sendBtn" title="Send Message">➤</button>
         </div>
     </div>
@@ -875,6 +882,8 @@ ul.awesome-list li .text {
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const audioBtn = document.getElementById('audioBtn');
+        const fileBtn = document.getElementById('fileBtn');
+        const fileInput = document.getElementById('fileInput');
 
         let isRecording = false;
         let recognition = null;
@@ -1114,20 +1123,29 @@ function AddSession(){
             }
         });
 
-        audioBtn.addEventListener('click', () => {
-            if (!recognition) {
-                alert('Speech recognition is not supported in your browser.');
-                return;
-            }
+       
 
-            if (isRecording) {
-                recognition.stop();
-                isRecording = false;
-                audioBtn.classList.remove('recording');
-            } else {
-                recognition.start();
-                isRecording = true;
-                audioBtn.classList.add('recording');
+        // File upload button opens file picker
+        fileBtn.addEventListener('click', () => {
+            fileInput.value = ''; // reset selection
+            fileInput.click();
+        });
+        
+        // When a file is selected upload it to n8n and show conversation messages
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            // Show user message with file name
+            
+             
+
+            try {
+                const result = await uploadFileToN8N(file);
+  addMessage(result.nodeOutput,"assistant")
+
+            } catch (err) {
+                alert("sorry something went wrong");
             }
         });
 
@@ -1268,6 +1286,49 @@ function AddSession(){
 
         // Welcome speech
       
+ async function send() {
+    const file = document.getElementById("fileInput").files[0];
+    if (!file) return alert("Choose a file first!");
+
+    const result = await uploadFileToN8N(file);
+    console.log(result);
+    
+  }
+
+
+
+
+        async function uploadFileToN8N(file) {
+  const url = "https://agencyv.app.n8n.cloud/webhook/user";
+
+  // Create the multipart/form-data payload
+  const formData = new FormData();
+  formData.append("file", file); // The field name MUST be "file"
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      body: formData,
+      headers: {
+        // DO NOT manually set Content-Type here
+        // fetch will generate the correct multipart boundary automatically
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log("File uploaded successfully:", result);
+    return result;
+
+  } catch (error) {
+    console.error("Upload error:", error);
+    throw error;
+  }
+}
+
     </script>
 </body>
 </html>
